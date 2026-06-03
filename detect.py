@@ -21,7 +21,6 @@ except Exception as e:
 
 CONFIG_FILE  = "toolchest_config.json"
 LOG_FILE     = "tool_events.jsonl"
-SNAPSHOT_DIR = "snapshots"
 
 raw_frame_lock = threading.Lock()
 raw_frame      = None
@@ -194,7 +193,6 @@ def capture_loop(cam, mode, config):
         except Exception: time.sleep(0.1)
 
 def log_event(slot_name, event_str, target_user, dark_ratio):
-    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     event = {"ts": datetime.now().isoformat(), "slot": slot_name, "event": event_str, "user": target_user, "dark_ratio": dark_ratio}
     with open(LOG_FILE, "a") as f: f.write(json.dumps(event) + "\n")
 
