@@ -139,6 +139,11 @@ def detect_tools(frame_bgr, baseline_bgr, config):
         _, mask = cv2.threshold(diff, diff_thresh, 255, cv2.THRESH_BINARY)
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN,  np.ones((3,3), np.uint8))
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3,3), np.uint8))
+        if config.get("foam_boundary"):
+            bpts  = np.array(config["foam_boundary"], np.int32)
+            bmask = np.zeros(mask.shape, dtype=np.uint8)
+            cv2.fillPoly(bmask, [bpts], 255)
+            mask  = cv2.bitwise_and(mask, bmask)
         results = {}
         for slot in config["slots"]:
             if "polygon_pts" in slot:
@@ -173,6 +178,9 @@ def annotate_and_encode(frame_bgr, config):
             x, y, w, h = slot["x"], slot["y"], slot["w"], slot["h"]
             cv2.rectangle(vis, (x, y), (x + w, y + h), color, 2)
             cv2.putText(vis, f"{'OK' if present else 'OUT'} {name}", (x + 4, y + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+    if config.get("foam_boundary"):
+        bpts = np.array(config["foam_boundary"], np.int32).reshape((-1, 1, 2))
+        cv2.polylines(vis, [bpts], True, (100, 200, 255), 2)
     lock_str, lock_col = ("LOCKED", (0, 0, 200)) if is_locked else ("UNLOCKED", (0, 180, 0))
     cv2.rectangle(vis, (10, 10), (160, 45), lock_col, -1)
     cv2.putText(vis, lock_str, (25, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
