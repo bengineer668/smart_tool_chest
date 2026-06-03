@@ -95,7 +95,7 @@ def mjpeg_stream(handler):
 
 
 # ── detection ────────────────────────────────────────────────────────────────
-def detect_foam_slots(frame, threshold=None, min_area=600):
+def detect_foam_slots(frame, threshold=None, min_area=600, boundary_pts=None):
     """
     Detects bright holes in black shadow foam via contrast + watershed.
     Returns list of [[x, y], ...] contour-point arrays.
@@ -109,6 +109,10 @@ def detect_foam_slots(frame, threshold=None, min_area=600):
     k3 = np.ones((3, 3), np.uint8); k7 = np.ones((7, 7), np.uint8)
     binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN,  k3, iterations=2)
     binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, k7, iterations=2)
+    if boundary_pts and len(boundary_pts) >= 3:
+        bmask = np.zeros(binary.shape, dtype=np.uint8)
+        cv2.fillPoly(bmask, [np.array(boundary_pts, np.int32)], 255)
+        binary = cv2.bitwise_and(binary, bmask)
 
     dist   = cv2.distanceTransform(binary, cv2.DIST_L2, 5)
     dist_n = cv2.normalize(dist, None, 0, 1.0, cv2.NORM_MINMAX)
@@ -351,7 +355,7 @@ code { background: #1e2330; padding: 2px 6px; border-radius: 4px; color: #93c5fd
                   onclick="deleteSelected()" disabled title="Delete (Del)">&#128465;</button>
         </div>
         <div class="hint" style="margin-top:5px;">
-          Click slot to select &bull; Drag vertex dots to reshape
+          Click to select &bull; Drag vertex to reshape &bull; Right-click vertex to delete it
         </div>
       </div>
       <hr>
@@ -601,6 +605,22 @@ canvas.addEventListener("mousemove", e => {
 canvas.addEventListener("mouseup",    () => { dragInfo = null; });
 canvas.addEventListener("mouseleave", () => { dragInfo = null; });
 
+canvas.addEventListener("contextmenu", e => {
+  e.preventDefault();
+  if (mode !== null || selId === null) return;
+  const [cx, cy] = canvasXY(e);
+  const vi = hitVertex(cx, cy);
+  if (vi === null) return;
+  const s = slots.find(s => s.id === selId);
+  if (!s) return;
+  if (s.points.length <= 3) {
+    toast("Need at least 3 vertices — use \u{1F5D1} to delete the whole slot");
+    return;
+  }
+  s.points.splice(vi, 1);
+  redraw();
+});
+
 document.addEventListener("keydown", e => {
   const typing = document.activeElement && document.activeElement.tagName === "INPUT";
   if ((e.key === "Delete" || e.key === "Backspace") && !typing && selId !== null && mode === null) {
@@ -640,7 +660,7 @@ function updateBanner() {
     `&#9645; <b>Boundary:</b> trace the foam edge (min&nbsp;3 points). <kbd>Enter</kbd> or <b>Finish</b> when done.`;
   else if (mode === 'line') msg.innerHTML = linePt1
     ? `&#9986; <b>Split/Join:</b> click the <b>second</b> point.`
-    : `&#9986; <b>Split/Join:</b> click the <b>first</b> point of the line.`;
+    : `&#9986; <b>Split/Join:</b> click the <b>first</b> point. Draw as many lines as needed &mdash; <kbd>Esc</kbd> to exit.`;
 }
 
 function startSlot()  { pick(null); setMode('slot');  }
@@ -677,7 +697,8 @@ function clearBdry()  {
 
 // ── split / join line ─────────────────────────────────────────────────────────
 async function applyLine(p1, p2) {
-  setMode(null); redraw();
+  // Reset for next line — stay in line mode so user can draw another immediately
+  linePt1 = null; mousePos = null; updateBanner(); redraw();
   const payload = {
     slots: slots.map(s => ({ id: s.id, name: s.name, points: s.points })),
     line:  [p1, p2]
@@ -710,7 +731,7 @@ async function runDetect() {
   try {
     const res  = await fetch("/api/detect", {
       method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ threshold: thr })
+      body: JSON.stringify({ threshold: thr, boundary: boundary || null })
     });
     const data = await res.json();
     if (!res.ok) { alert("Detection failed: " + (data.error || "unknown")); return; }
@@ -723,12 +744,7 @@ async function runDetect() {
     canvas.width  = baseImg.naturalWidth;
     canvas.height = baseImg.naturalHeight;
 
-    // Filter detected slots by boundary if one is set
-    let detected = data.slots;
-    if (boundary && boundary.length >= 3)
-      detected = detected.filter(pts => isInsidePoly(centroid(pts), boundary));
-
-    slots = detected.map((pts, i) => ({ id: nextId++, name: "tool_" + (i + 1), points: pts }));
+    slots = data.slots.map((pts, i) => ({ id: nextId++, name: "tool_" + (i + 1), points: pts }));
     pick(null); renderList(); redraw();
     showPage("edit");
     toast(`Detected ${slots.length} slot${slots.length !== 1 ? "s" : ""}`);
@@ -820,7 +836,8 @@ class Handler(BaseHTTPRequestHandler):
             with calib["lock"]:
                 calib["capture_jpg"] = jpg.tobytes()
                 calib["frame_size"]  = (frame.shape[1], frame.shape[0])
-            detected = detect_foam_slots(frame, thr)
+            bdry     = data.get("boundary") or []
+            detected = detect_foam_slots(frame, thr, boundary_pts=bdry or None)
             self.send_json(200, {"slots": detected, "count": len(detected)})
 
         elif self.path == "/api/split_join":
