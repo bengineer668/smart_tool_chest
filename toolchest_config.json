@@ -1,0 +1,110 @@
+{
+  "created": "2026-06-02T11:30:04.027769",
+  "baseline_image": "baseline.png",
+  "slots": [
+    {
+      "name": "loctite",
+      "x": 140,
+      "y": 98,
+      "w": 292,
+      "h": 545,
+      "polygon_pts": [
+        [
+          232,
+          101
+        ],
+        [
+          140,
+          643
+        ],
+        [
+          367,
+          636
+        ],
+        [
+          432,
+          98
+        ],
+        [
+          231,
+          103
+        ]
+      ],
+      "baseline_dark_ratio": 0.0,
+      "last_user": "weissman",
+      "last_event_ts": "2026-06-02 23:01:57",
+      "current_holder": "\u2014"
+    },
+    {
+      "name": "pliers",
+      "x": 370,
+      "y": 99,
+      "w": 376,
+      "h": 535,
+      "polygon_pts": [
+        [
+          431,
+          99
+        ],
+        [
+          722,
+          106
+        ],
+        [
+          746,
+          627
+        ],
+        [
+          370,
+          634
+        ],
+        [
+          432,
+          100
+        ]
+      ],
+      "baseline_dark_ratio": 0.0,
+      "last_user": "O: bert / I: weissman",
+      "last_event_ts": "2026-06-02 23:01:54",
+      "current_holder": "\u2014"
+    },
+    {
+      "name": "strippers",
+      "x": 723,
+      "y": 105,
+      "w": 332,
+      "h": 526,
+      "polygon_pts": [
+        [
+          723,
+          105
+        ],
+        [
+          957,
+          108
+        ],
+        [
+          1055,
+          628
+        ],
+        [
+          750,
+          631
+        ],
+        [
+          723,
+          105
+        ]
+      ],
+      "baseline_dark_ratio": 0.0,
+      "last_user": "O: g / I: weissman",
+      "last_event_ts": "2026-06-02 21:43:01",
+      "current_holder": "\u2014"
+    }
+  ],
+  "settings": {
+    "detection_mode": "background_subtract",
+    "bg_diff_threshold": 30,
+    "present_pixel_ratio": 0.05
+  }
+}
