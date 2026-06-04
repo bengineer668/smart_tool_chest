@@ -240,8 +240,8 @@ def display_loop(state_dict):
     scroll_row    = 0    # index of first visible row
     scroll_dir    = 1    # +1 = scrolling down, -1 = scrolling up
     ticks_held    = 0    # ticks spent at current position
-    ADVANCE_TICKS = 4    # 0.5 s × 4 = 2 s per row advance
-    PAUSE_TICKS   = 8    # 0.5 s × 8 = 4 s pause at each end
+    ADVANCE_TICKS = 2    # 0.5 s × 2 = 1 s per row advance
+    PAUSE_TICKS   = 4    # 0.5 s × 4 = 2 s pause at each end
     at_end        = True # start paused so the first screen is held a moment
     tick          = 0
 
