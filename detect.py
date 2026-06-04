@@ -270,150 +270,75 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Team 668 &#8212; Smart Tool Chest</title>
+<title>Team 668 &mdash; Smart Tool Chest</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #080604;
-    color: #ebe0d0;
-    min-height: 100vh;
-  }
-
-  /* ── team header ─────────────────────────────── */
-  .team-header {
-    background: linear-gradient(135deg, #3c1400 0%, #1a0800 100%);
-    border-bottom: 2px solid #ff6b00;
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #000; color: #d0d0d0; min-height: 100vh; }
+  header {
+    background: #0a0000;
+    border-bottom: 2px solid #a80000;
     padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    display: flex; align-items: baseline; gap: 16px;
   }
-  .team-header .ape { font-size: 2.4rem; line-height: 1; }
-  .team-header .team-text { flex: 1; }
-  .team-header .team-name {
-    font-size: 1.4rem; font-weight: 800;
-    color: #ff6b00; letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .team-header .team-sub {
-    font-size: 0.85rem; color: #b08060; margin-top: 1px;
-  }
-  .team-header .team-num {
-    font-size: 2.2rem; font-weight: 900;
-    color: #ff6b00; opacity: 0.85;
-    letter-spacing: -1px;
-  }
-
-  /* ── layout ──────────────────────────────────── */
-  .layout {
-    display: flex; gap: 18px;
-    padding: 18px 20px;
-    max-width: 1400px; margin: 0 auto;
-  }
-  .live-wrap {
-    flex: 1 1 60%;
-    background: #000;
-    border: 1px solid #3d1a00;
-    border-radius: 10px;
-    overflow: hidden;
-  }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: #a80000; letter-spacing: 0.04em; }
+  header span { font-size: 0.8rem; color: #555; }
+  .layout { display: flex; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+  .live-wrap { flex: 1 1 60%; background: #000; border: 1px solid #2a0000; border-radius: 8px; overflow: hidden; }
   .live-wrap img { width: 100%; display: block; }
-  .sidebar {
-    flex: 0 0 38%;
-    display: flex; flex-direction: column; gap: 16px;
-  }
-
-  /* ── panels ──────────────────────────────────── */
-  .panel {
-    background: #120800;
-    border: 1px solid #3d1a00;
-    border-radius: 10px;
-    padding: 16px;
-  }
-  .panel h3 {
-    font-size: 0.75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.1em;
-    color: #805030; margin-bottom: 12px;
-  }
-
-  /* ── status row ──────────────────────────────── */
-  .status-row {
-    display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 12px;
-  }
-  .status-label { font-size: 0.95rem; color: #a08060; }
-  .badge {
-    padding: 4px 10px; border-radius: 5px;
-    font-size: 0.78rem; font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-  .badge.locked   { background: #5a1010; color: #fca5a5; border: 1px solid #7f1d1d; }
-  .badge.unlocked { background: #5a3000; color: #ffc560; border: 1px solid #8a4400; }
-  .badge.in  { background: #0d3a14; color: #86efac; border: 1px solid #166534; }
-  .badge.out { background: #5a1010; color: #fca5a5; border: 1px solid #7f1d1d; }
-
-  /* ── user / auth area ────────────────────────── */
-  .user-line { font-size: 0.9rem; color: #c09060; margin-bottom: 12px; }
-  .user-line span { color: #ff8c30; font-weight: 600; }
-  .auth-row { display: flex; gap: 8px; align-items: center; }
+  .sidebar { flex: 0 0 38%; display: flex; flex-direction: column; gap: 14px; }
+  .panel { background: #0d0d0d; border: 1px solid #2a0000; border-radius: 8px; padding: 15px; }
+  .panel h3 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 12px; }
+  .status-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .status-label { font-size: 0.9rem; color: #888; }
+  .badge { padding: 3px 9px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; }
+  .badge.locked   { background: #3a0000; color: #cc6666; border: 1px solid #600000; }
+  .badge.unlocked { background: #0a2a0a; color: #66cc66; border: 1px solid #1a5a1a; }
+  .badge.in  { background: #0a2a0a; color: #66cc66; border: 1px solid #1a5a1a; }
+  .badge.out { background: #3a0000; color: #cc6666; border: 1px solid #600000; }
+  .user-line { font-size: 0.88rem; color: #777; margin-bottom: 12px; }
+  .user-line b { color: #a80000; font-weight: 600; }
+  .auth-row { display: flex; gap: 8px; }
   input[type=text] {
-    background: #0a0500; border: 1px solid #3d1a00;
-    color: #ebe0d0; border-radius: 6px;
-    padding: 7px 10px; font-size: 0.9rem; flex: 1;
+    background: #0a0000; border: 1px solid #3a0000; color: #d0d0d0;
+    border-radius: 5px; padding: 7px 10px; font-size: 0.88rem; flex: 1;
   }
-  input[type=text]:focus { outline: none; border-color: #ff6b00; }
+  input[type=text]:focus { outline: none; border-color: #a80000; }
   button {
-    background: #cc4400; color: #fff; border: none;
-    padding: 7px 14px; border-radius: 6px;
-    font-size: 0.88rem; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    transition: background 0.15s;
+    background: #a80000; color: #fff; border: none;
+    padding: 7px 14px; border-radius: 5px; font-size: 0.85rem;
+    font-weight: 600; cursor: pointer; transition: background 0.15s;
   }
-  button:hover { background: #ff5500; }
-  .btn-lock {
-    background: #7f1d1d; color: #fca5a5;
-    width: 100%; padding: 9px;
-  }
-  .btn-lock:hover { background: #991b1b; }
-
-  /* ── inventory table ─────────────────────────── */
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  button:hover { background: #cc0000; }
+  .btn-lock { background: #3a0000; color: #cc6666; width: 100%; padding: 9px; }
+  .btn-lock:hover { background: #600000; color: #ff9999; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
   thead th {
-    text-align: left; padding: 6px 8px;
-    color: #805030; font-size: 0.75rem;
-    text-transform: uppercase; letter-spacing: 0.07em;
-    border-bottom: 1px solid #2d1400;
+    text-align: left; padding: 5px 8px; color: #555;
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1px solid #1a0000;
   }
-  tbody td { padding: 8px; border-bottom: 1px solid #1e0d00; vertical-align: middle; }
-  tbody tr:hover td { background: #1a0a00; }
-  .tool-name { font-weight: 600; color: #ebe0d0; }
-  .holder    { color: #ff8c30; font-weight: 600; }
-  .ts        { color: #604030; font-size: 0.78rem; }
+  tbody td { padding: 8px; border-bottom: 1px solid #161616; vertical-align: middle; }
+  tbody tr:hover td { background: #0f0000; }
+  .tool-name { font-weight: 600; color: #c8c8c8; }
+  .holder { color: #a80000; font-weight: 600; }
+  .ts { color: #444; font-size: 0.77rem; }
 </style>
 <script>
   let lastLockState = null;
-
   async function refresh() {
     try {
       const r = await fetch('/api/status');
       const d = await r.json();
-
       const badge = document.getElementById('lock-badge');
       badge.className = 'badge ' + (d.locked ? 'locked' : 'unlocked');
       badge.textContent = d.locked ? 'LOCKED' : 'UNLOCKED';
       document.getElementById('auth-user').textContent = d.current_user || '—';
-
       if (lastLockState !== d.locked) {
         lastLockState = d.locked;
         document.getElementById('action-area').innerHTML = d.locked
-          ? `<div class="auth-row">
-               <input type="text" id="username" placeholder="Enter your name to unlock...">
-               <button onclick="auth()">Unlock</button>
-             </div>`
+          ? `<div class="auth-row"><input type="text" id="username" placeholder="Enter your name to unlock..."><button onclick="auth()">Unlock</button></div>`
           : `<button class="btn-lock" onclick="lock()">Lock Drawer</button>`;
       }
-
       let rows = '';
       for (const [name, info] of Object.entries(d.slots)) {
         rows += `<tr>
@@ -427,75 +352,42 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       document.getElementById('inventory-body').innerHTML = rows;
     } catch(e) {}
   }
-
   async function auth() {
     const u = document.getElementById('username').value.trim();
     if (!u) return;
-    await fetch('/api/unlock', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: 'user=' + encodeURIComponent(u)
-    });
+    await fetch('/api/unlock', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'user='+encodeURIComponent(u)});
     refresh();
   }
-
-  async function lock() {
-    await fetch('/api/lock', {method: 'POST'});
-    refresh();
-  }
-
-  window.addEventListener('load', () => {
-    document.getElementById('live-feed').src = '/stream';
-    setInterval(refresh, 1000);
-  });
+  async function lock() { await fetch('/api/lock', {method:'POST'}); refresh(); }
+  window.addEventListener('load', () => { document.getElementById('live-feed').src = '/stream'; setInterval(refresh, 1000); });
 </script>
 </head>
 <body>
-
-  <div class="team-header">
-    <div class="ape">&#129428;</div>
-    <div class="team-text">
-      <div class="team-name">Apes of Wrath &mdash; Smart Tool Chest</div>
-      <div class="team-sub">FRC Team 668 &nbsp;&bull;&nbsp; Real-time drawer monitoring</div>
-    </div>
-    <div class="team-num">668</div>
-    <div class="ape">&#129428;</div>
-  </div>
-
+  <header>
+    <h1>Smart Tool Chest</h1>
+    <span>Team 668 &mdash; Apes of Wrath</span>
+  </header>
   <div class="layout">
-    <div class="live-wrap">
-      <img id="live-feed" src="">
-    </div>
-
+    <div class="live-wrap"><img id="live-feed" src=""></div>
     <div class="sidebar">
       <div class="panel">
-        <h3>Drawer Status</h3>
+        <h3>Status</h3>
         <div class="status-row">
-          <span class="status-label">Lock state</span>
+          <span class="status-label">Drawer</span>
           <span id="lock-badge" class="badge locked">LOCKED</span>
         </div>
-        <div class="user-line">Active user: <span id="auth-user">None</span></div>
+        <div class="user-line">User: <b id="auth-user">None</b></div>
         <div id="action-area"></div>
       </div>
-
       <div class="panel">
         <h3>Tool Inventory</h3>
         <table>
-          <thead>
-            <tr>
-              <th>Tool</th>
-              <th>Status</th>
-              <th>Taken by</th>
-              <th>Last user</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Tool</th><th>Status</th><th>Taken by</th><th>Last user</th><th>Timestamp</th></tr></thead>
           <tbody id="inventory-body"></tbody>
         </table>
       </div>
     </div>
   </div>
-
 </body>
 </html>"""
 
