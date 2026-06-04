@@ -137,7 +137,7 @@ def render(snap, page=0, pulse=False):
 
     # ── 1. HEADER (y 0–28) ───────────────────────────────────────────────────
     draw.rectangle([(0, 0), (W, 28)], fill=HEADER_BG)
-    _cx(draw, 7, "Smart Tool Chest", F["head"], ACCENT)
+    _cx(draw, 7, "Smart Tool Chest", F["head"], WHITE)
 
     pill_bg, pill_fg = PILL_LOCK if locked else PILL_UNLOCK
     pill_txt = "LOCKED" if locked else "UNLOCKED"
