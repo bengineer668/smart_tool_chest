@@ -2,7 +2,14 @@
 
 opencv-python-headless>=4.8
 numpy>=1.24
+Pillow>=9.2
 
 # On Raspberry Pi with PiCamera module, also install:
 # picamera2
 # (comes pre-installed on Raspberry Pi OS Bookworm)
+
+# TFT display (JC2432S028 / ILI9341) — needed for display_test.py:
+# pip install luma.lcd luma.core RPi.GPIO spidev
+#
+# Also enable SPI first:
+#   sudo raspi-config → Interface Options → SPI → Enable
