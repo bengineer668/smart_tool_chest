@@ -20,19 +20,21 @@ BGR       = False       # set True if red and blue appear swapped
 PAGE_SIZE = 5           # tool rows per page
 PAGE_SECS = 4.0         # seconds before flipping to next page
 
-# ── colour palette (matches the web dashboard dark theme) ─────────────────────
-BG          = ( 13,  17,  23)
-HEADER_BG   = ( 22,  52, 108)
-GREEN       = ( 74, 222, 128)
-RED         = (248, 113, 113)
-MUTED       = ( 96, 116, 139)
-WHITE       = (226, 232, 240)
-DIVIDER     = ( 31,  41,  55)
-PILL_LOCK   = ((100,  20,  20), (252, 165, 165))   # (fill, text)
-PILL_UNLOCK = (( 16,  73,  40), (134, 239, 172))
-ALERT_MISS  = (( 50,   8,   8), (248, 113, 113))   # (bg, text)
-ALERT_OK    = ((  8,  40,  18), ( 74, 222, 128))
-ROW_MISS_BG = ( 40,   8,   8)
+# ── colour palette ────────────────────────────────────────────────────────────
+ACCENT      = (168,   0,   0)   # #a80000 — team red
+ACCENT_DIM  = ( 90,   0,   0)   # darker red for subtle details
+BG          = (  0,   0,   0)   # black
+HEADER_BG   = ( 18,   0,   0)   # near-black red tint
+GREEN       = ( 80, 200,  80)   # tool present
+RED         = (220,  55,  55)   # tool missing
+MUTED       = (110, 110, 110)   # grey secondary text
+WHITE       = (210, 210, 210)   # light grey / primary text
+DIVIDER     = ( 28,  28,  28)   # dark grey divider
+PILL_LOCK   = (( 80,   0,   0), (220, 120, 120))   # (fill, text)
+PILL_UNLOCK = (( 10,  55,  10), (100, 210, 100))
+ALERT_MISS  = (( 55,   5,   5), (220,  60,  60))
+ALERT_OK    = ((  5,  45,  10), ( 80, 200,  85))
+ROW_MISS_BG = ( 38,   4,   4)
 
 # ── framebuffer ───────────────────────────────────────────────────────────────
 _fb = None
@@ -122,8 +124,8 @@ def _pill(draw, x1, y1, x2, y2, fill, text, font, text_fill):
     draw.text((tx, ty), text, fill=text_fill, font=font)
 
 
-def _hline(draw, y, color=DIVIDER):
-    draw.line([(0, y), (W, y)], fill=color, width=1)
+def _hline(draw, y, color=None):
+    draw.line([(0, y), (W, y)], fill=color or DIVIDER, width=1)
 
 
 # ── render one frame ──────────────────────────────────────────────────────────
@@ -153,7 +155,7 @@ def render(snap, page=0, pulse=False):
     # 1.  HEADER BAR  (y 0–28)
     # ────────────────────────────────────────────────────────────────────────
     draw.rectangle([(0, 0), (W, 28)], fill=HEADER_BG)
-    _cx(draw, 7, "Smart Tool Chest", F["head"], WHITE)
+    _cx(draw, 7, "Smart Tool Chest", F["head"], ACCENT)
 
     # Lock pill (top-right corner)
     pill_fill, pill_txt_col = PILL_LOCK if locked else PILL_UNLOCK
