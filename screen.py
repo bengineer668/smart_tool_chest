@@ -124,7 +124,7 @@ def _hline(draw, y, color=None):
 
 
 # ── render ────────────────────────────────────────────────────────────────────
-def render(snap, page=0, pulse=False):
+def render(snap, offset=0, pulse=False):
     locked  = snap.get("locked", True)
     user    = snap.get("current_user", "")
     missing = snap.get("missing_tools", [])
@@ -171,10 +171,10 @@ def render(snap, page=0, pulse=False):
     FOOTER_H = 14
     MAX_Y    = H - FOOTER_H - 1
 
-    slot_items  = list(slots.items())
-    total_pages = max(1, (len(slot_items) + PAGE_SIZE - 1) // PAGE_SIZE)
-    page        = page % total_pages
-    visible     = slot_items[page * PAGE_SIZE : (page + 1) * PAGE_SIZE]
+    slot_items = list(slots.items())
+    n_slots    = len(slot_items)
+    offset     = max(0, min(offset, max(0, n_slots - PAGE_SIZE)))
+    visible    = slot_items[offset : offset + PAGE_SIZE]
 
     y = 76
     for name, info in visible:
@@ -194,12 +194,6 @@ def render(snap, page=0, pulse=False):
         _hline(draw, y + ROW_H - 1)
         y += ROW_H
 
-    overflow = len(slot_items) - (page + 1) * PAGE_SIZE
-    if overflow > 0 and y + 14 <= MAX_Y:
-        draw.text((28, y + 4),
-                  f"+ {overflow} more  (page {page + 1}/{total_pages})",
-                  fill=MUTED, font=F["small"])
-
     if not slot_items:
         draw.text((28, 100), "No slots configured.", fill=MUTED, font=F["tool"])
         draw.text((28, 120), "Run calibrate.py first.", fill=MUTED, font=F["small"])
@@ -209,9 +203,10 @@ def render(snap, page=0, pulse=False):
     draw.rectangle([(0, H - FOOTER_H + 1), (W, H)], fill=DIVIDER)
     draw.text((6,  H - FOOTER_H + 2), time.strftime("%H:%M"), fill=MUTED, font=F["small"])
     n_ok = sum(1 for v in slots.values() if v.get("present", True))
-    draw.text((50, H - FOOTER_H + 2), f"{n_ok}/{len(slots)} present", fill=MUTED, font=F["small"])
-    if total_pages > 1:
-        _rx(draw, H - FOOTER_H + 2, f"pg {page + 1}/{total_pages}", F["small"], ACCENT_DIM)
+    draw.text((50, H - FOOTER_H + 2), f"{n_ok}/{n_slots} present", fill=MUTED, font=F["small"])
+    if n_slots > PAGE_SIZE:
+        end = min(offset + PAGE_SIZE, n_slots)
+        _rx(draw, H - FOOTER_H + 2, f"{offset + 1}-{end} of {n_slots}", F["small"], ACCENT_DIM)
 
     return img
 
@@ -241,9 +236,14 @@ def display_loop(state_dict):
     except Exception as e:
         print(f"[screen] Backlight: {e}")
 
-    page           = 0
-    last_page_flip = time.time()
-    tick           = 0
+    # Ping-pong scroll state
+    scroll_row    = 0    # index of first visible row
+    scroll_dir    = 1    # +1 = scrolling down, -1 = scrolling up
+    ticks_held    = 0    # ticks spent at current position
+    ADVANCE_TICKS = 4    # 0.5 s × 4 = 2 s per row advance
+    PAUSE_TICKS   = 8    # 0.5 s × 8 = 4 s pause at each end
+    at_end        = True # start paused so the first screen is held a moment
+    tick          = 0
 
     while True:
         try:
@@ -255,12 +255,30 @@ def display_loop(state_dict):
                     "slots":         {k: dict(v) for k, v in state_dict["slots"].items()},
                 }
 
-            n = len(snap["slots"])
-            if n > PAGE_SIZE and time.time() - last_page_flip > PAGE_SECS:
-                page           = (page + 1) % max(1, (n + PAGE_SIZE - 1) // PAGE_SIZE)
-                last_page_flip = time.time()
+            n       = len(snap["slots"])
+            max_row = max(0, n - PAGE_SIZE)
 
-            _write(render(snap, page=page, pulse=(tick % 2 == 1)))
+            if n > PAGE_SIZE:
+                ticks_held += 1
+                wait = PAUSE_TICKS if at_end else ADVANCE_TICKS
+                if ticks_held >= wait:
+                    ticks_held = 0
+                    next_row   = scroll_row + scroll_dir
+                    if next_row >= max_row:
+                        next_row  = max_row
+                        scroll_dir = -1
+                        at_end     = True
+                    elif next_row <= 0:
+                        next_row  = 0
+                        scroll_dir = 1
+                        at_end     = True
+                    else:
+                        at_end = False
+                    scroll_row = next_row
+            else:
+                scroll_row = 0
+
+            _write(render(snap, offset=scroll_row, pulse=(tick % 2 == 1)))
 
         except Exception as e:
             print(f"[screen] render error: {e}")
