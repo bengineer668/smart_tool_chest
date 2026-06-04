@@ -420,6 +420,11 @@ def main():
     cam, cam_mode = open_camera()
     threading.Thread(target=capture_loop, args=(cam, cam_mode, config), daemon=True).start()
     threading.Thread(target=detection_loop, args=(config, baseline), daemon=True).start()
+    try:
+        import screen as tft
+        threading.Thread(target=tft.display_loop, args=(state,), daemon=True).start()
+    except ImportError:
+        pass
     try: start_web_server(args.port)
     except KeyboardInterrupt: pass
     release_camera(cam, cam_mode)
