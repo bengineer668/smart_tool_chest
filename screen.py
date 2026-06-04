@@ -136,7 +136,7 @@ def render(snap, page=0, pulse=False):
     draw = ImageDraw.Draw(img)
 
     # ── 1. HEADER (y 0–28) ───────────────────────────────────────────────────
-    draw.rectangle([(0, 0), (W, 28)], fill=HEADER_BG)
+    draw.rectangle([(0, 0), (W, 28)], fill=ACCENT)
     _cx(draw, 7, "Smart Tool Chest", F["head"], WHITE)
 
     pill_bg, pill_fg = PILL_LOCK if locked else PILL_UNLOCK
