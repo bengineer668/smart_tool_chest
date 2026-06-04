@@ -270,24 +270,126 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Intelligent Tool Chest</title>
+<title>Team 668 &#8212; Smart Tool Chest</title>
 <style>
-  body { font-family: sans-serif; background: #0f1115; color: #e2e8f0; padding: 20px; }
-  .layout { display: flex; gap: 20px; }
-  .live-wrap { position: relative; background: #000; width: 60%; border-radius: 8px; overflow: hidden; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #080604;
+    color: #ebe0d0;
+    min-height: 100vh;
+  }
+
+  /* ── team header ─────────────────────────────── */
+  .team-header {
+    background: linear-gradient(135deg, #3c1400 0%, #1a0800 100%);
+    border-bottom: 2px solid #ff6b00;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .team-header .ape { font-size: 2.4rem; line-height: 1; }
+  .team-header .team-text { flex: 1; }
+  .team-header .team-name {
+    font-size: 1.4rem; font-weight: 800;
+    color: #ff6b00; letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .team-header .team-sub {
+    font-size: 0.85rem; color: #b08060; margin-top: 1px;
+  }
+  .team-header .team-num {
+    font-size: 2.2rem; font-weight: 900;
+    color: #ff6b00; opacity: 0.85;
+    letter-spacing: -1px;
+  }
+
+  /* ── layout ──────────────────────────────────── */
+  .layout {
+    display: flex; gap: 18px;
+    padding: 18px 20px;
+    max-width: 1400px; margin: 0 auto;
+  }
+  .live-wrap {
+    flex: 1 1 60%;
+    background: #000;
+    border: 1px solid #3d1a00;
+    border-radius: 10px;
+    overflow: hidden;
+  }
   .live-wrap img { width: 100%; display: block; }
-  .sidebar { width: 40%; display: flex; flex-direction: column; gap: 20px; }
-  .panel { background: #1e293b; border: 1px solid #475569; border-radius: 8px; padding: 15px; }
-  .lock-status { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; }
-  .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
-  .badge.locked { background: #7f1d1d; color: #fca5a5; }
-  .badge.unlocked { background: #14532d; color: #86efac; }
-  .badge.in { background: #166534; color: #bbf7d0; }
-  .badge.out { background: #991b1b; color: #fecaca; }
-  input { background: #0f1115; border: 1px solid #475569; padding: 6px; color: #fff; border-radius: 4px; width: 60%; }
-  button { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #334155; }
+  .sidebar {
+    flex: 0 0 38%;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* ── panels ──────────────────────────────────── */
+  .panel {
+    background: #120800;
+    border: 1px solid #3d1a00;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .panel h3 {
+    font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: #805030; margin-bottom: 12px;
+  }
+
+  /* ── status row ──────────────────────────────── */
+  .status-row {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 12px;
+  }
+  .status-label { font-size: 0.95rem; color: #a08060; }
+  .badge {
+    padding: 4px 10px; border-radius: 5px;
+    font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .badge.locked   { background: #5a1010; color: #fca5a5; border: 1px solid #7f1d1d; }
+  .badge.unlocked { background: #5a3000; color: #ffc560; border: 1px solid #8a4400; }
+  .badge.in  { background: #0d3a14; color: #86efac; border: 1px solid #166534; }
+  .badge.out { background: #5a1010; color: #fca5a5; border: 1px solid #7f1d1d; }
+
+  /* ── user / auth area ────────────────────────── */
+  .user-line { font-size: 0.9rem; color: #c09060; margin-bottom: 12px; }
+  .user-line span { color: #ff8c30; font-weight: 600; }
+  .auth-row { display: flex; gap: 8px; align-items: center; }
+  input[type=text] {
+    background: #0a0500; border: 1px solid #3d1a00;
+    color: #ebe0d0; border-radius: 6px;
+    padding: 7px 10px; font-size: 0.9rem; flex: 1;
+  }
+  input[type=text]:focus { outline: none; border-color: #ff6b00; }
+  button {
+    background: #cc4400; color: #fff; border: none;
+    padding: 7px 14px; border-radius: 6px;
+    font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s;
+  }
+  button:hover { background: #ff5500; }
+  .btn-lock {
+    background: #7f1d1d; color: #fca5a5;
+    width: 100%; padding: 9px;
+  }
+  .btn-lock:hover { background: #991b1b; }
+
+  /* ── inventory table ─────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    text-align: left; padding: 6px 8px;
+    color: #805030; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    border-bottom: 1px solid #2d1400;
+  }
+  tbody td { padding: 8px; border-bottom: 1px solid #1e0d00; vertical-align: middle; }
+  tbody tr:hover td { background: #1a0a00; }
+  .tool-name { font-weight: 600; color: #ebe0d0; }
+  .holder    { color: #ff8c30; font-weight: 600; }
+  .ts        { color: #604030; font-size: 0.78rem; }
 </style>
 <script>
   let lastLockState = null;
@@ -296,67 +398,104 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     try {
       const r = await fetch('/api/status');
       const d = await r.json();
-      
-      document.getElementById('lock-badge').className = d.locked ? "badge locked" : "badge unlocked";
-      document.getElementById('lock-badge').textContent = d.locked ? "LOCKED" : "UNLOCKED";
-      document.getElementById('auth-user').textContent = d.current_user;
-      
+
+      const badge = document.getElementById('lock-badge');
+      badge.className = 'badge ' + (d.locked ? 'locked' : 'unlocked');
+      badge.textContent = d.locked ? 'LOCKED' : 'UNLOCKED';
+      document.getElementById('auth-user').textContent = d.current_user || '—';
+
       if (lastLockState !== d.locked) {
         lastLockState = d.locked;
-        document.getElementById('action-area').innerHTML = d.locked 
-          ? `<input type="text" id="username" placeholder="Enter Name"> <button onclick="auth()">Unlock</button>`
-          : `<button style="background:#dc2626; width:100%;" onclick="lock()">Lock Drawer</button>`;
+        document.getElementById('action-area').innerHTML = d.locked
+          ? `<div class="auth-row">
+               <input type="text" id="username" placeholder="Enter your name to unlock...">
+               <button onclick="auth()">Unlock</button>
+             </div>`
+          : `<button class="btn-lock" onclick="lock()">Lock Drawer</button>`;
       }
 
       let rows = '';
       for (const [name, info] of Object.entries(d.slots)) {
         rows += `<tr>
-          <td><b>${name}</b></td>
-          <td><span class="badge ${info.present ? 'in':'out'}">${info.present ? 'PRESENT':'ABSENT'}</span></td>
-          <td><span style="color:#f43f5e; font-weight:bold;">${info.current_holder || '—'}</span></td>
-          <td>${info.last_user || '—'}</td>
-          <td><small>${info.last_event_ts || '—'}</small></td>
+          <td class="tool-name">${name}</td>
+          <td><span class="badge ${info.present ? 'in' : 'out'}">${info.present ? 'PRESENT' : 'MISSING'}</span></td>
+          <td class="holder">${info.current_holder || '&mdash;'}</td>
+          <td>${info.last_user || '&mdash;'}</td>
+          <td class="ts">${info.last_event_ts || '&mdash;'}</td>
         </tr>`;
       }
       document.getElementById('inventory-body').innerHTML = rows;
     } catch(e) {}
   }
+
   async function auth() {
     const u = document.getElementById('username').value.trim();
-    if(!u) return;
-    await fetch('/api/unlock', {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: 'user=' + encodeURIComponent(u)});
+    if (!u) return;
+    await fetch('/api/unlock', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'user=' + encodeURIComponent(u)
+    });
     refresh();
   }
+
   async function lock() {
     await fetch('/api/lock', {method: 'POST'});
     refresh();
   }
-  
-  window.addEventListener("load", () => {
-    document.getElementById("live-feed").src = "/stream";
+
+  window.addEventListener('load', () => {
+    document.getElementById('live-feed').src = '/stream';
     setInterval(refresh, 1000);
   });
 </script>
 </head>
 <body>
-  <h1>🧰 Smart Tool Chest Dashboard</h1><br>
+
+  <div class="team-header">
+    <div class="ape">&#129428;</div>
+    <div class="team-text">
+      <div class="team-name">Apes of Wrath &mdash; Smart Tool Chest</div>
+      <div class="team-sub">FRC Team 668 &nbsp;&bull;&nbsp; Real-time drawer monitoring</div>
+    </div>
+    <div class="team-num">668</div>
+    <div class="ape">&#129428;</div>
+  </div>
+
   <div class="layout">
-    <div class="live-wrap"><img id="live-feed" src=""></div>
+    <div class="live-wrap">
+      <img id="live-feed" src="">
+    </div>
+
     <div class="sidebar">
       <div class="panel">
-        <div class="lock-status">Status: <span id="lock-badge" class="badge locked">LOCKED</span></div>
-        <div style="margin-bottom:10px;">User Access Log: <span id="auth-user" style="color:#3b82f6;">None</span></div>
+        <h3>Drawer Status</h3>
+        <div class="status-row">
+          <span class="status-label">Lock state</span>
+          <span id="lock-badge" class="badge locked">LOCKED</span>
+        </div>
+        <div class="user-line">Active user: <span id="auth-user">None</span></div>
         <div id="action-area"></div>
       </div>
+
       <div class="panel">
-        <h3>Drawer Inventory Matrix</h3>
+        <h3>Tool Inventory</h3>
         <table>
-          <thead><tr><th>Tool</th><th>Status</th><th>Current Holder</th><th>Last Handled By</th><th>Timestamp</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Status</th>
+              <th>Taken by</th>
+              <th>Last user</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
           <tbody id="inventory-body"></tbody>
         </table>
       </div>
     </div>
   </div>
+
 </body>
 </html>"""
 
