@@ -24,7 +24,7 @@ PAGE_SECS = 4.0
 ACCENT      = (168,   0,   0)   # #a80000
 ACCENT_DIM  = ( 90,   0,   0)
 BG          = (  0,   0,   0)   # black
-HEADER_BG   = ( 70,  70,  70)   # near-black with red tint
+HEADER_BG   = ( 77,  77,  77)   # near-black with red tint
 GREEN       = ( 80, 200,  80)
 RED         = (220,  55,  55)
 MUTED       = (110, 110, 110)
@@ -136,7 +136,7 @@ def render(snap, page=0, pulse=False):
     draw = ImageDraw.Draw(img)
 
     # ── 1. HEADER (y 0–28) ───────────────────────────────────────────────────
-    draw.rectangle([(0, 0), (W, 28)], fill=ACCENT)
+    draw.rectangle([(0, 0), (W, 28)], fill=HEADER_BG)
     _cx(draw, 7, "Smart Tool Chest", F["head"], WHITE)
 
     pill_bg, pill_fg = PILL_LOCK if locked else PILL_UNLOCK
