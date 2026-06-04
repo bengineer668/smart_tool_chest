@@ -8,8 +8,10 @@ Pillow>=9.2
 # picamera2
 # (comes pre-installed on Raspberry Pi OS Bookworm)
 
-# TFT display (JC2432S028 / ILI9341) — needed for display_test.py:
-# pip install luma.lcd luma.core RPi.GPIO spidev
+# TFT display (JC2432S028 / ILI9341) — display_test.py writes directly to
+# the kernel framebuffer (/dev/fb0), so no extra Python libs are needed.
+# RPi.GPIO is only required for the backlight PWM:
+# pip install RPi.GPIO
 #
-# Also enable SPI first:
-#   sudo raspi-config → Interface Options → SPI → Enable
+# Add yourself to the video group to avoid running as root:
+#   sudo usermod -a -G video $USER   (then log out and back in)
