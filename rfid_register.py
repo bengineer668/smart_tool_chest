@@ -40,9 +40,13 @@ def wait_for_card(reader):
 def main():
     try:
         from mfrc522 import MFRC522
-        reader = MFRC522(bus=1, device=2, pin_rst=17)
+        reader = MFRC522(bus=1, device=2, pin_rst=17, pin_irq=-1, pin_mode=11)
     except ImportError:
         print("[ERROR] mfrc522 not installed. Run: pip install mfrc522")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("[ERROR] /dev/spidev1.2 not found — SPI1 not enabled.")
+        print("  Fix: add 'dtoverlay=spi1-3cs' to /boot/firmware/config.txt and reboot.")
         sys.exit(1)
     except Exception as e:
         print(f"[ERROR] Could not init RC522: {e}")

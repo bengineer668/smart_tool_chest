@@ -64,9 +64,13 @@ def rfid_loop():
     """
     try:
         from mfrc522 import MFRC522
-        reader = MFRC522(bus=1, device=2, pin_rst=17)
+        reader = MFRC522(bus=1, device=2, pin_rst=17, pin_irq=-1, pin_mode=11)
     except ImportError:
         print("[rfid] mfrc522 not installed — RFID disabled. Run: pip install mfrc522")
+        return
+    except FileNotFoundError:
+        print("[rfid] /dev/spidev1.2 not found — SPI1 not enabled.")
+        print("[rfid] Add 'dtoverlay=spi1-3cs' to /boot/firmware/config.txt and reboot.")
         return
     except Exception as e:
         print(f"[rfid] Could not init RC522: {e}")
