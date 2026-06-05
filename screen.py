@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # ── display geometry ──────────────────────────────────────────────────────────
 W, H      = 320, 240
-PIN_LED   = 18
+PIN_LED   = 13  # GPIO13 — GPIO18 is taken by SPI1_CE0 (spi1-3cs overlay)
 BGR       = False       # set True if red and blue appear swapped
 PAGE_SIZE = 5
 PAGE_SECS = 4.0
