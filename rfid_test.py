@@ -48,8 +48,18 @@ def main():
         print(f"[ERROR] Could not init RC522: {e}")
         return
 
-    print("RFID Test  —  place cards on the reader (Ctrl+C to quit)")
-    print("SPI1/CE2, RST=GPIO17")
+    # Verify SPI is actually talking to the chip
+    ver = reader.Read_MFRC522(reader.VersionReg)
+    if ver in (0x91, 0x92):
+        print(f"RC522 detected OK — version 0x{ver:02X}")
+    elif ver == 0x00 or ver == 0xFF:
+        print(f"SPI ERROR — version reg returned 0x{ver:02X} (should be 0x91 or 0x92)")
+        print("  Check wiring and that 'dtoverlay=spi1-3cs' is in /boot/firmware/config.txt")
+        return
+    else:
+        print(f"Unexpected version reg 0x{ver:02X} — continuing anyway")
+
+    print("Place a card on the reader (Ctrl+C to quit)")
     print()
 
     last_uid    = None
