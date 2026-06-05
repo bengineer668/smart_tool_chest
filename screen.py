@@ -14,10 +14,10 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 # ── display geometry ──────────────────────────────────────────────────────────
-W, H      = 240, 320
+W, H      = 320, 240
 PIN_LED   = 18
 BGR       = False       # set True if red and blue appear swapped
-PAGE_SIZE = 9           # fits portrait height: (320 - 76 footer/header) / 24px rows
+PAGE_SIZE = 5
 PAGE_SECS = 4.0
 
 # ── colour palette ────────────────────────────────────────────────────────────
