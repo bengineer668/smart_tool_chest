@@ -11,20 +11,30 @@ import os
 import sys
 import time
 
-CONFIG_FILE = "toolchest_config.json"
+RFID_FILE = "rfid_cards.json"
 
 
-def load_config():
-    if not os.path.exists(CONFIG_FILE):
-        print(f"[ERROR] {CONFIG_FILE} not found. Run calibrate.py first.")
-        sys.exit(1)
-    with open(CONFIG_FILE) as f:
-        return json.load(f)
+def load_rfid():
+    if os.path.exists(RFID_FILE):
+        with open(RFID_FILE) as f:
+            return json.load(f)
+    # One-time migration: pull cards out of toolchest_config.json if present
+    if os.path.exists("toolchest_config.json"):
+        try:
+            with open("toolchest_config.json") as f:
+                cards = json.load(f).get("rfid_cards", {})
+            if cards:
+                print(f"[migrate] Moving {len(cards)} card(s) to {RFID_FILE}")
+                save_rfid(cards)
+                return cards
+        except Exception:
+            pass
+    return {}
 
 
-def save_config(cfg):
-    with open(CONFIG_FILE, "w") as f:
-        json.dump(cfg, f, indent=2)
+def save_rfid(cards):
+    with open(RFID_FILE, "w") as f:
+        json.dump(cards, f, indent=2)
 
 
 def wait_for_card(reader):
@@ -52,8 +62,7 @@ def main():
         print(f"[ERROR] Could not init RC522: {e}")
         sys.exit(1)
 
-    cfg        = load_config()
-    rfid_cards = cfg.setdefault("rfid_cards", {})
+    rfid_cards = load_rfid()
 
     print("RC522 RFID Card Registration")
     print("=" * 40)
@@ -76,8 +85,7 @@ def main():
         name = input("Name for this card (Enter to skip): ").strip()
         if name:
             rfid_cards[uid_str] = name
-            cfg["rfid_cards"] = rfid_cards
-            save_config(cfg)
+            save_rfid(rfid_cards)
             print(f"  Saved: {uid_str}  →  {name}")
         else:
             print("  Skipped.")

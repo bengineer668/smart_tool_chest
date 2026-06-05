@@ -20,6 +20,7 @@ except Exception as e:
     print(f"[audio warning] Could not initialize audio player: {e}")
 
 CONFIG_FILE  = "toolchest_config.json"
+RFID_FILE    = "rfid_cards.json"
 LOG_FILE     = "tool_events.jsonl"
 
 raw_frame_lock = threading.Lock()
@@ -98,11 +99,10 @@ def rfid_loop():
 
                         # Check authorisation
                         try:
-                            with open(CONFIG_FILE) as f:
-                                cfg = json.load(f)
+                            with open(RFID_FILE) as f:
+                                rfid_cards = json.load(f)
                         except Exception:
-                            cfg = {}
-                        rfid_cards = cfg.get("rfid_cards", {})
+                            rfid_cards = {}
 
                         if uid_str in rfid_cards:
                             name = rfid_cards[uid_str]
