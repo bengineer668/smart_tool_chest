@@ -15,7 +15,7 @@ RFID_FILE = "rfid_cards.json"
 
 
 def load_rfid():
-    if os.path.exists(RFID_FILE):
+    if os.path.exists(RFID_FILE) and os.path.getsize(RFID_FILE) > 2:
         with open(RFID_FILE) as f:
             return json.load(f)
     # One-time migration: pull cards out of toolchest_config.json if present

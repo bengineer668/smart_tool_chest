@@ -16,6 +16,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
 CONFIG_FILE   = "toolchest_config.json"
+RFID_FILE     = "rfid_cards.json"
 BASELINE_FILE = "baseline.png"
 PORT          = 5001
 
@@ -888,6 +889,19 @@ class Handler(BaseHTTPRequestHandler):
             }
             if bdry_in:
                 config["foam_boundary"] = [[int(p[0]), int(p[1])] for p in bdry_in]
+            # Migrate rfid_cards from old config into rfid_cards.json before overwriting
+            rfid_dest_empty = (not os.path.exists(RFID_FILE) or os.path.getsize(RFID_FILE) <= 2)
+            if rfid_dest_empty:
+                try:
+                    with open(CONFIG_FILE) as f:
+                        old_cards = json.load(f).get("rfid_cards", {})
+                    if old_cards:
+                        with open(RFID_FILE, "w") as rf:
+                            json.dump(old_cards, rf, indent=2)
+                        print(f"[calibrate] Migrated {len(old_cards)} RFID card(s) to {RFID_FILE}")
+                except Exception:
+                    pass
+
             with open(CONFIG_FILE, "w") as f:
                 json.dump(config, f, indent=2)
             with calib["lock"]:
