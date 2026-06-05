@@ -106,5 +106,6 @@
     "detection_mode": "background_subtract",
     "bg_diff_threshold": 30,
     "present_pixel_ratio": 0.05
-  }
+  },
+  "rfid_cards": {}
 }

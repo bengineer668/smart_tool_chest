@@ -3,6 +3,7 @@
 opencv-python-headless>=4.8
 numpy>=1.24
 Pillow>=9.2
+mfrc522
 
 # On Raspberry Pi with PiCamera module, also install:
 # picamera2

@@ -52,9 +52,66 @@ def play_sound(sound_type):
                 print(f"[audio missing] Sound file not found: {sound_path}")
         except Exception as e:
             print(f"[audio error] Failed to play {sound_type}: {e}")
-    
+
     # Run in background thread so the camera stream never stutters
     threading.Thread(target=_play, daemon=True).start()
+
+def rfid_loop():
+    """
+    Continuously polls the RC522 on SPI1/CE2 (GPIO16), RST=GPIO17.
+    Beeps on every card read. Unlocks if the UID is in rfid_cards config.
+    Enable SPI1 first: add 'dtoverlay=spi1-3cs' to /boot/firmware/config.txt
+    """
+    try:
+        from mfrc522 import MFRC522
+        reader = MFRC522(bus=1, device=2, pin_rst=17)
+    except ImportError:
+        print("[rfid] mfrc522 not installed — RFID disabled. Run: pip install mfrc522")
+        return
+    except Exception as e:
+        print(f"[rfid] Could not init RC522: {e}")
+        return
+
+    print("[rfid] RC522 ready on SPI1/CE2, RST=GPIO17")
+    last_uid    = None
+    last_uid_ts = 0.0
+
+    while True:
+        try:
+            (status, _) = reader.MFRC522_Request(reader.PICC_REQIDL)
+            if status == reader.MI_OK:
+                (status, uid) = reader.MFRC522_Anticoll()
+                if status == reader.MI_OK:
+                    uid_str = '-'.join(str(b) for b in uid)
+                    now = time.time()
+                    # 2-second debounce so held cards don't retrigger
+                    if uid_str != last_uid or (now - last_uid_ts) > 2.0:
+                        last_uid    = uid_str
+                        last_uid_ts = now
+
+                        # Beep for any card read (add sounds/rfid_beep.wav for a custom tone)
+                        play_sound("rfid_beep")
+
+                        # Check authorisation
+                        try:
+                            with open(CONFIG_FILE) as f:
+                                cfg = json.load(f)
+                        except Exception:
+                            cfg = {}
+                        rfid_cards = cfg.get("rfid_cards", {})
+
+                        if uid_str in rfid_cards:
+                            name = rfid_cards[uid_str]
+                            with state["lock"]:
+                                state["locked"]       = False
+                                state["current_user"] = name
+                            play_sound("unlocked_chime")
+                            print(f"[rfid] Authorized: {name} ({uid_str})")
+                        else:
+                            print(f"[rfid] Unknown card: {uid_str}")
+        except Exception as e:
+            print(f"[rfid] Error: {e}")
+        time.sleep(0.1)
 
 def open_camera():
     try:
@@ -297,12 +354,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .badge.out { background: #3a0000; color: #cc6666; border: 1px solid #600000; }
   .user-line { font-size: 0.88rem; color: #777; margin-bottom: 12px; }
   .user-line b { color: #a80000; font-weight: 600; }
-  .auth-row { display: flex; gap: 8px; }
-  input[type=text] {
-    background: #0a0000; border: 1px solid #3a0000; color: #d0d0d0;
-    border-radius: 5px; padding: 7px 10px; font-size: 0.88rem; flex: 1;
+  .rfid-hint {
+    font-size: 0.85rem; color: #555; text-align: center;
+    padding: 9px 0; letter-spacing: 0.04em;
   }
-  input[type=text]:focus { outline: none; border-color: #a80000; }
   button {
     background: #a80000; color: #fff; border: none;
     padding: 7px 14px; border-radius: 5px; font-size: 0.85rem;
@@ -336,7 +391,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (lastLockState !== d.locked) {
         lastLockState = d.locked;
         document.getElementById('action-area').innerHTML = d.locked
-          ? `<div class="auth-row"><input type="text" id="username" placeholder="Enter your name to unlock..."><button onclick="auth()">Unlock</button></div>`
+          ? `<div class="rfid-hint">Scan RFID card to unlock</div>`
           : `<button class="btn-lock" onclick="lock()">Lock Drawer</button>`;
       }
       let rows = '';
@@ -351,12 +406,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
       document.getElementById('inventory-body').innerHTML = rows;
     } catch(e) {}
-  }
-  async function auth() {
-    const u = document.getElementById('username').value.trim();
-    if (!u) return;
-    await fetch('/api/unlock', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'user='+encodeURIComponent(u)});
-    refresh();
   }
   async function lock() { await fetch('/api/lock', {method:'POST'}); refresh(); }
   window.addEventListener('load', () => { document.getElementById('live-feed').src = '/stream'; setInterval(refresh, 1000); });
@@ -451,6 +500,7 @@ def main():
     cam, cam_mode = open_camera()
     threading.Thread(target=capture_loop, args=(cam, cam_mode, config), daemon=True).start()
     threading.Thread(target=detection_loop, args=(config, baseline), daemon=True).start()
+    threading.Thread(target=rfid_loop, daemon=True).start()
     try:
         import screen as tft
         threading.Thread(target=tft.display_loop, args=(state,), daemon=True).start()
