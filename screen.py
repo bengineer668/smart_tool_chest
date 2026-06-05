@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # ── display geometry ──────────────────────────────────────────────────────────
 W, H        = 240, 320  # portrait render dimensions
-ROTATE_DEG  = -90       # rotate before writing to 320×240 framebuffer; flip to 90 if upside-down
+ROTATE_DEG  = 90       # rotate before writing to 320×240 framebuffer; flip to 90 if upside-down
 PIN_LED     = 18
 BGR         = False     # set True if red and blue appear swapped
 PAGE_SIZE   = 9         # (320 - 76 - 14) / 24px rows ≈ 9
