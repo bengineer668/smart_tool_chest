@@ -4,7 +4,7 @@ screen.py — Live TFT display for the Smart Tool Chest.
 Renders tool / lock status to the ILI9341 framebuffer (/dev/fb0).
 Called from detect.py as a daemon thread — no extra libraries needed.
 
-Screen: 320×240 landscape (kernel fbtft driver rotates 90°)
+Screen: 240×320 portrait (set rotate=0 in /boot/firmware/config.txt)
 """
 import glob
 import os
@@ -14,10 +14,10 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 # ── display geometry ──────────────────────────────────────────────────────────
-W, H      = 320, 240
+W, H      = 240, 320
 PIN_LED   = 18
 BGR       = False       # set True if red and blue appear swapped
-PAGE_SIZE = 5
+PAGE_SIZE = 9           # fits portrait height: (320 - 76 footer/header) / 24px rows
 PAGE_SECS = 4.0
 
 # ── colour palette ────────────────────────────────────────────────────────────
