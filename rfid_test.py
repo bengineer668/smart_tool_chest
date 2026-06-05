@@ -36,9 +36,7 @@ def beep():
 def main():
     try:
         from mfrc522 import MFRC522
-        import inspect
-        print("MFRC522 constructor signature:", inspect.signature(MFRC522.__init__))
-        reader = MFRC522(dev='/dev/spidev1.2', pin_rst=17)
+        reader = MFRC522(bus=1, device=2, pin_rst=17, pin_mode=11)
     except ImportError:
         print("[ERROR] mfrc522 not installed. Run: pip install mfrc522")
         return
