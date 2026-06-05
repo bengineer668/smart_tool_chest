@@ -36,7 +36,7 @@ def beep():
 def main():
     try:
         from mfrc522 import MFRC522
-        reader = MFRC522(bus=1, device=2, pin_rst=17, pin_mode=11)
+        reader = MFRC522(bus=1, device=2, pin_rst=-1, pin_mode=11)
     except ImportError:
         print("[ERROR] mfrc522 not installed. Run: pip install mfrc522")
         return
