@@ -4,7 +4,9 @@ screen.py — Live TFT display for the Smart Tool Chest.
 Renders tool / lock status to the ILI9341 framebuffer (/dev/fb0).
 Called from detect.py as a daemon thread — no extra libraries needed.
 
-Screen: 240×320 portrait (set rotate=0 in /boot/firmware/config.txt)
+Renders 240×320 portrait then rotates -90° before writing to the
+320×240 framebuffer (fbtft locks buffer size regardless of MADCTL).
+If content appears rotated the wrong way, change ROTATE_DEG to 90.
 """
 import glob
 import os
@@ -14,10 +16,11 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 # ── display geometry ──────────────────────────────────────────────────────────
-W, H      = 320, 240
-PIN_LED   = 18
-BGR       = False       # set True if red and blue appear swapped
-PAGE_SIZE = 5
+W, H        = 240, 320  # portrait render dimensions
+ROTATE_DEG  = -90       # rotate before writing to 320×240 framebuffer; flip to 90 if upside-down
+PIN_LED     = 18
+BGR         = False     # set True if red and blue appear swapped
+PAGE_SIZE   = 9         # (320 - 76 - 14) / 24px rows ≈ 9
 PAGE_SECS = 4.0
 
 # ── colour palette ────────────────────────────────────────────────────────────
@@ -56,6 +59,7 @@ def _find_fb():
 def _write(img: Image.Image):
     if not _fb:
         return
+    img = img.rotate(ROTATE_DEG, expand=True)
     a = np.array(img.convert("RGB"), dtype=np.uint16)
     r, g, b = (a[:, :, 2], a[:, :, 1], a[:, :, 0]) if BGR \
          else (a[:, :, 0], a[:, :, 1], a[:, :, 2])
