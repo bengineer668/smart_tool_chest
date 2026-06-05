@@ -20,7 +20,7 @@ W, H        = 240, 320  # portrait render dimensions
 ROTATE_DEG  = 90       # rotate before writing to 320×240 framebuffer; flip to 90 if upside-down
 PIN_LED     = 18
 BGR         = False     # set True if red and blue appear swapped
-PAGE_SIZE   = 9         # (320 - 76 - 14) / 24px rows ≈ 9
+PAGE_SIZE   = 8         # (320 - 99 - 14) / 24px rows ≈ 8
 PAGE_SECS = 4.0
 
 # ── colour palette ────────────────────────────────────────────────────────────
@@ -113,15 +113,6 @@ def _rx(draw, y, text, font, fill, margin=8):
     draw.text((W - _tw(draw, text, font) - margin, y), text, fill=fill, font=font)
 
 
-def _pill(draw, x1, y1, x2, y2, bg, text, font, fg):
-    try:
-        draw.rounded_rectangle([(x1, y1), (x2, y2)], radius=4, fill=bg)
-    except AttributeError:
-        draw.rectangle([(x1, y1), (x2, y2)], fill=bg)
-    tw = _tw(draw, text, font)
-    draw.text((x1 + ((x2 - x1) - tw) // 2, y1 + ((y2 - y1) - 10) // 2),
-              text, fill=fg, font=font)
-
 
 def _hline(draw, y, color=None):
     draw.line([(0, y), (W, y)], fill=color or DIVIDER, width=1)
@@ -139,26 +130,28 @@ def render(snap, offset=0, pulse=False):
     img  = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
 
-    # ── 1. HEADER (y 0–28) ───────────────────────────────────────────────────
-    draw.rectangle([(0, 0), (W, 28)], fill=HEADER_BG)
-    _cx(draw, 7, "Smart Tool Chest", F["head"], WHITE)
+    # ── 1. HEADER (y 0–52) ───────────────────────────────────────────────────
+    # Title band
+    draw.rectangle([(0, 0), (W, 27)], fill=HEADER_BG)
+    _cx(draw, 6, "Smart Tool Chest", F["head"], WHITE)
 
-    pill_bg, pill_fg = PILL_LOCK if locked else PILL_UNLOCK
-    pill_txt = "LOCKED" if locked else "UNLOCKED"
-    pill_w   = _tw(draw, pill_txt, F["small"]) + 12
-    _pill(draw, W - pill_w - 5, 6, W - 5, 22, pill_bg, pill_txt, F["small"], pill_fg)
+    # Lock status band — full-width colored bar centered below title
+    lock_bg, lock_fg = PILL_LOCK if locked else PILL_UNLOCK
+    lock_txt = "LOCKED" if locked else "UNLOCKED"
+    draw.rectangle([(0, 28), (W, 52)], fill=lock_bg)
+    _cx(draw, 33, lock_txt, F["label"], lock_fg)
 
-    _hline(draw, 29)
+    _hline(draw, 53)
 
-    # ── 2. USER ROW (y 30–50) ────────────────────────────────────────────────
-    draw.rectangle([(0, 30), (W, 50)], fill=DIVIDER)
-    draw.text((10, 35), f"User:  {user_disp}", fill=WHITE, font=F["label"])
-    _hline(draw, 51)
+    # ── 2. USER ROW (y 54–74) ────────────────────────────────────────────────
+    draw.rectangle([(0, 54), (W, 74)], fill=DIVIDER)
+    draw.text((10, 59), f"User:  {user_disp}", fill=WHITE, font=F["label"])
+    _hline(draw, 75)
 
-    # ── 3. ALERT BAR (y 52–74) ───────────────────────────────────────────────
+    # ── 3. ALERT BAR (y 76–98) ───────────────────────────────────────────────
     n_miss = len(missing)
     alert_bg, alert_fg = ALERT_MISS if n_miss else ALERT_OK
-    draw.rectangle([(0, 52), (W, 74)], fill=alert_bg)
+    draw.rectangle([(0, 76), (W, 98)], fill=alert_bg)
 
     if n_miss:
         names = ", ".join(missing)
@@ -167,10 +160,10 @@ def render(snap, offset=0, pulse=False):
         alert_txt = f"  ! Missing: {names}"
     else:
         alert_txt = "  + All tools present"
-    draw.text((8, 57), alert_txt, fill=alert_fg, font=F["label"])
-    _hline(draw, 75)
+    draw.text((8, 81), alert_txt, fill=alert_fg, font=F["label"])
+    _hline(draw, 99)
 
-    # ── 4. TOOL ROWS (y 76 downward, 24 px each) ─────────────────────────────
+    # ── 4. TOOL ROWS (y 100 downward, 24 px each) ────────────────────────────
     ROW_H    = 24
     FOOTER_H = 14
     MAX_Y    = H - FOOTER_H - 1
@@ -180,7 +173,7 @@ def render(snap, offset=0, pulse=False):
     offset     = max(0, min(offset, max(0, n_slots - PAGE_SIZE)))
     visible    = slot_items[offset : offset + PAGE_SIZE]
 
-    y = 76
+    y = 100
     for name, info in visible:
         if y + ROW_H > MAX_Y:
             break
